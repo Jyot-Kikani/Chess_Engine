@@ -12,7 +12,7 @@ public class Board {
 
     private void initializeBoard() {
         String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-//        String startFen = "8/1P4P1/RNQBKBNR/8/8/8/5RRR/5R1q";
+//        String startFen = "Q3k3/8/R7/7p/8/8/6P1/4KBN1";
         initializeBoardFromFEN(startFen);
     }
 
@@ -74,9 +74,9 @@ public class Board {
     public void movePiece(int startX, int startY, int endX, int endY) {
         Piece piece = getPieceAt(startX, startY);
         if (piece != null) {
+            // Execute the move
             setPieceAt(endX, endY, piece);
             setPieceAt(startX, startY, null);
-//            recalculateValidMoves();
         }
     }
 
@@ -130,7 +130,7 @@ public class Board {
         }
     }
 
-    private char getPieceChar(Piece piece) {
+    public char getPieceChar(Piece piece) {
         char pieceChar;
         switch (piece.getType()) {
             case PAWN -> pieceChar = 'P';

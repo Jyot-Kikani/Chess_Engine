@@ -5,5 +5,6 @@ module com.chessengine.intellij_chessengine {
 
 
     opens com.chessengine.intellij_chessengine to javafx.fxml;
+    opens com.chessengine.intellij_chessengine.view to javafx.base;
     exports com.chessengine.intellij_chessengine;
 }

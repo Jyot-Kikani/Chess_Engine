@@ -3,6 +3,7 @@ package com.chessengine.intellij_chessengine.controller;
 import com.chessengine.intellij_chessengine.model.ChessModel;
 import com.chessengine.intellij_chessengine.model.Piece;
 import com.chessengine.intellij_chessengine.view.ChessView;
+import com.chessengine.intellij_chessengine.model.PieceType;
 
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
@@ -46,24 +47,36 @@ public class ChessController {
                     selectedSquare = null;
                     return;
                 }
-//                selectSound.play();
                 piece.calculateValidMoves(row, col, model.getBoard(), false);
                 validMoves = piece.getValidMoves();
             }
             updateView();
-        } else {
+        }
+        else {
             // Attempt to move the selected piece
             int startX = selectedSquare.getKey();
             int startY = selectedSquare.getValue();
+            Piece capturedPiece = model.getBoard().getPieceAt(row, col);
             if (model.movePiece(startX, startY, row, col)) {
                 moveSound.play();
+
+                Piece movedPiece = model.getBoard().getPieceAt(row, col);
+
+                // Determine turn number and add to move history
+                long turnNumber = (model.getCurrentTurn() + 1) / 2;
+                String moveNotation = model.getMoveNotation(movedPiece, startX, startY, row, col, capturedPiece);
+                if (model.getCurrentTurn() % 2 == 1) {
+                    view.addMoveToHistory(turnNumber, moveNotation, ""); // White's move
+                } else {
+                    view.addMoveToHistory(turnNumber, "", moveNotation); // Black's move
+                }
+
                 // Clear selection after attempting move
                 selectedSquare = null;
                 validMoves.clear();
-                Piece tempPiece = model.getBoard().getPieceAt(row, col);
-                view.animatePieceMovement(model.getBoard(), startX, startY, row, col, tempPiece);
-//                updateView();
+                view.animatePieceMovement(model.getBoard(), startX, startY, row, col, movedPiece);
             }
+
             else {
                 // If the clicked square is another piece, select it instead
                 Piece piece = model.getBoard().getPieceAt(row, col);
@@ -84,7 +97,6 @@ public class ChessController {
                 }
             }
         }
-//        updateView();
     }
 
     private void updateView() {

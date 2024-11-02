@@ -4,6 +4,7 @@ import com.chessengine.intellij_chessengine.model.Board;
 import com.chessengine.intellij_chessengine.model.Piece;
 import com.chessengine.intellij_chessengine.model.PieceType;
 
+
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.layout.GridPane;
@@ -14,13 +15,20 @@ import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import java.util.List;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.scene.control.Label;
 
 public class ChessView {
     private final GridPane boardGrid = new GridPane();
+    private TableView<MoveRecord> moveHistoryTable;
     public final int TILE_SIZE = 80;
 
     public ChessView() {
         initializeBoardGrid();
+        moveHistoryTable = setupMoveHistoryPanel();
     }
 
     private void initializeBoardGrid() {
@@ -98,5 +106,48 @@ public class ChessView {
     private Image getPieceImage(Piece piece) {
         String imageName = (piece.isWhite() ? "w" : "b") + (piece.getType() == PieceType.KNIGHT ? "n" : piece.getType().name().toLowerCase().charAt(0)) + ".png";
         return new Image(getClass().getResourceAsStream("/images/" + imageName));
+    }
+
+    private TableView<MoveRecord> setupMoveHistoryPanel() {
+        TableView<MoveRecord> tableView = new TableView<>();
+        tableView.setPrefWidth(300);
+
+        TableColumn<MoveRecord, Integer> turnColumn = new TableColumn<>("Turn");
+        turnColumn.setCellValueFactory(new PropertyValueFactory<>("turn"));
+        turnColumn.setPrefWidth(50);
+
+        TableColumn<MoveRecord, String> whiteMoveColumn = new TableColumn<>("White");
+        whiteMoveColumn.setCellValueFactory(new PropertyValueFactory<>("whiteMove"));
+        whiteMoveColumn.setPrefWidth(125);
+
+        TableColumn<MoveRecord, String> blackMoveColumn = new TableColumn<>("Black");
+        blackMoveColumn.setCellValueFactory(new PropertyValueFactory<>("blackMove"));
+        blackMoveColumn.setPrefWidth(125);
+
+        tableView.getColumns().addAll(turnColumn, whiteMoveColumn, blackMoveColumn);
+        return tableView;
+    }
+
+    public VBox getMoveHistoryPanel() {
+        Label historyLabel = new Label("Move History");
+        historyLabel.setStyle("-fx-font-weight: bold; -fx-padding: 5px;");
+
+        VBox moveHistoryContainer = new VBox();
+        moveHistoryContainer.getChildren().addAll(historyLabel, moveHistoryTable);
+        moveHistoryContainer.setSpacing(5);
+        moveHistoryContainer.setPrefHeight(400); // Adjust as needed
+        return moveHistoryContainer;
+    }
+
+    public void addMoveToHistory(long turn, String whiteMove, String blackMove) {
+        if (!blackMove.isEmpty() && !moveHistoryTable.getItems().isEmpty()) {
+            // Retrieve the last move record and update it with the black move
+            MoveRecord lastMove = moveHistoryTable.getItems().getLast();
+            lastMove.setBlackMove(blackMove);
+            moveHistoryTable.refresh();
+        } else {
+            MoveRecord move = new MoveRecord(turn, whiteMove, blackMove);
+            moveHistoryTable.getItems().add(move);
+        }
     }
 }
