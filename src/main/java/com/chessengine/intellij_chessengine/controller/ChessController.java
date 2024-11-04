@@ -1,6 +1,7 @@
 package com.chessengine.intellij_chessengine.controller;
 
 import com.chessengine.intellij_chessengine.model.ChessModel;
+import com.chessengine.intellij_chessengine.model.GameSaver;
 import com.chessengine.intellij_chessengine.model.Piece;
 import com.chessengine.intellij_chessengine.view.ChessView;
 import com.chessengine.intellij_chessengine.model.PieceType;
@@ -11,6 +12,7 @@ import javafx.scene.media.AudioClip;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ChessController {
     private final ChessModel model;
@@ -29,6 +31,28 @@ public class ChessController {
         this.view.setController(this);
         initializeListeners();
         updateView();
+
+        Optional<String> fileName = view.promptForLoadFileName();
+        if (fileName.isPresent()) {
+            String fullFileName = fileName.get();
+            // Add logic to load the game using the fullFileName
+            System.out.println("Loading game from: " + fullFileName);
+            model.loadGameHistory(fullFileName);
+
+            // Add the moves to the move history panel
+            for (int i = 0; i < model.getUndoStack().size(); i++) {
+                if (i % 2 == 0) {
+                    view.addMoveToHistory((i + 2) / 2, model.getUndoStack().get(i).getMoveNotation(), "");
+                } else {
+                    view.addMoveToHistory((i + 2) / 2, "", model.getUndoStack().get(i).getMoveNotation());
+                }
+            }
+
+            // Undo last checkmateMove so that game isn't instantly terminated
+            this.undoMove();
+        } else {
+            System.out.println("No file specified. Skipping load.");
+        }
     }
 
     private void initializeListeners() {
@@ -70,9 +94,7 @@ public class ChessController {
                 Piece movedPiece = model.getBoard().getPieceAt(row, col);
 
                 // Determine turn number and add to move history
-                System.out.println("Current: " + model.getCurrentTurn());
                 long turnNumber = (model.getCurrentTurn() + 1) / 2;
-                System.out.println("turnNumber: " + turnNumber);
                 String moveNotation = model.getMoveNotation(movedPiece, startX, startY, row, col, capturedPiece);
                 if (model.getCurrentTurn() % 2 == 1) {
                     view.addMoveToHistory(turnNumber, moveNotation, ""); // White's move
@@ -133,9 +155,9 @@ public class ChessController {
     public void redoMove() {
         if(model.redoMove()) {
             if(!model.isWhiteToMove())
-                view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, model.getLastMove().getKey(), "");
+                view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, model.getLastMove().getMoveNotation(), "");
             else
-                view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, "", model.getLastMove().getKey());
+                view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, "", model.getLastMove().getMoveNotation());
             updateView();
         }
     }
@@ -147,6 +169,17 @@ public class ChessController {
     }
 
     public void saveGame() {
+        // Get the file name from the view
+        Optional<String> fileName = view.getFileName();
 
+        // Check if the user provided a file name
+        if (fileName.isPresent()) {
+            String fullFileName = fileName.get();
+
+            // Call the method to save the game history with the provided file name
+            GameSaver.saveGameHistory(model.getUndoStack(), fullFileName);
+        } else {
+            System.out.println("Save operation cancelled.");
+        }
     }
 }

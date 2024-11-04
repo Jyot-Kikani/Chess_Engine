@@ -275,4 +275,31 @@ public class ChessView {
     public void clearMoveHistory() {
         moveHistoryTable.getItems().clear();
     }
+
+    public Optional<String> getFileName() {
+        // Create a prompt dialog for the user to enter a file name
+        TextInputDialog dialog = new TextInputDialog("gameHistory");
+        dialog.setTitle("Save Game");
+        dialog.setHeaderText("Save Game History");
+        dialog.setContentText("Please enter the file name (without extension):");
+
+        // Show the dialog and capture the result
+        Optional<String> result = dialog.showAndWait();
+        return result.map(fileName -> fileName + ".ser");
+    }
+
+    public Optional<String> promptForLoadFileName() {
+        // Create a prompt dialog for the user to enter a file name
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Load Game");
+        dialog.setHeaderText("Load Game History");
+        dialog.setContentText("Please enter the file name to load (leave blank to skip):");
+
+        // Show the dialog and capture the result
+        Optional<String> result = dialog.showAndWait();
+
+        // Check if the user provided a non-blank input
+        return result.filter(fileName -> !fileName.trim().isEmpty())
+                .map(fileName -> fileName + ".ser");
+    }
 }

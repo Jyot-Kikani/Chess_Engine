@@ -11,8 +11,8 @@ public class ChessModel {
     private final Board board;
     private boolean whiteToMove;
     private long turnNumber;
-    private Stack<Pair<String, String>> undoStack = new Stack<>();
-    private Stack<Pair<String, String>> redoStack = new Stack<>();
+    private Stack<Move> undoStack = new Stack<>();
+    private Stack<Move> redoStack = new Stack<>();
 
     public ChessModel() {
         board = new Board();
@@ -29,12 +29,16 @@ public class ChessModel {
     }
 
     public void updateStack(String move) {
-        undoStack.push(new Pair<>(move, board.getFENfromBoard()));
+        undoStack.push(new Move(move, board.getFENfromBoard()));
         redoStack.clear();
     }
 
-    public Pair<String, String> getLastMove() {
+    public Move getLastMove() {
         return undoStack.peek();
+    }
+
+    public Stack<Move> getUndoStack() {
+        return undoStack;
     }
 
     public boolean movePiece(int startX, int startY, int endX, int endY) {
@@ -114,12 +118,12 @@ public class ChessModel {
         if(undoStack.isEmpty())
             return false;
 
-        Pair<String, String> move = undoStack.pop();
+        Move move = undoStack.pop();
         redoStack.push(move);
         if(undoStack.isEmpty())
             board.initializeBoard();
         else
-            board.initializeBoardFromFEN(undoStack.peek().getValue());
+            board.initializeBoardFromFEN(undoStack.peek().getFenString());
         whiteToMove = !whiteToMove;
         turnNumber--;
         return true;
@@ -129,9 +133,9 @@ public class ChessModel {
         if(redoStack.isEmpty())
             return false;
 
-        Pair<String, String> move = redoStack.pop();
+        Move move = redoStack.pop();
         undoStack.push(move);
-        board.initializeBoardFromFEN(move.getValue());
+        board.initializeBoardFromFEN(move.getFenString());
         whiteToMove = !whiteToMove;
         turnNumber++;
         return true;
@@ -143,5 +147,15 @@ public class ChessModel {
         redoStack.clear();
         whiteToMove = true;
         turnNumber = 0;
+    }
+
+    public void loadGameHistory(String filename) {
+        Stack<Move> gameHistory = GameLoader.loadGameHistory(filename);
+        if (gameHistory != null) {
+            undoStack = gameHistory;
+            board.initializeBoardFromFEN(undoStack.peek().getFenString());
+            whiteToMove = undoStack.size() % 2 == 0;
+            turnNumber = undoStack.size();
+        }
     }
 }

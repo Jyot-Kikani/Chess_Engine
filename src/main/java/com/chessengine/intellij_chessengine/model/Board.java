@@ -11,8 +11,8 @@ public class Board {
     }
 
     public void initializeBoard() {
-//        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        String startFen = "n2bkpnr/p1p1pp1p/8/2Q5/8/8/PPPPPPPP/RNB1KBNR";
+        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+//        String startFen = "n2bkpnr/p1p1pp1p/8/2Q5/8/8/PPPPPPPP/RNB1KBNR"; // For testing
         initializeBoardFromFEN(startFen);
     }
 
