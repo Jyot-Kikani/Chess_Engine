@@ -1,5 +1,6 @@
 package com.chessengine.intellij_chessengine.view;
 
+import com.chessengine.intellij_chessengine.controller.ChessController;
 import com.chessengine.intellij_chessengine.model.Board;
 import com.chessengine.intellij_chessengine.model.Piece;
 import com.chessengine.intellij_chessengine.model.PieceType;
@@ -13,6 +14,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.Image;
@@ -31,10 +33,19 @@ public class ChessView {
     private final GridPane boardGrid = new GridPane();
     private TableView<MoveRecord> moveHistoryTable;
     public final int TILE_SIZE = 80;
+    private Button undoButton;
+    private Button redoButton;
+    private ChessController controller;
 
     public ChessView() {
         initializeBoardGrid();
         moveHistoryTable = setupMoveHistoryPanel();
+        setupUndoRedoButtons();
+
+    }
+
+    public void setController(ChessController controller) {
+        this.controller = controller;
     }
 
     private void initializeBoardGrid() {
@@ -165,6 +176,46 @@ public class ChessView {
         }
     }
 
+    public void removeLastMoveFromHistory() {
+        if (!moveHistoryTable.getItems().isEmpty()) {
+            MoveRecord lastMove = moveHistoryTable.getItems().getLast();
+            if(lastMove.getBlackMove().isEmpty()) {
+                moveHistoryTable.getItems().remove(moveHistoryTable.getItems().size() - 1);
+            } else {
+                lastMove.setBlackMove("");
+                moveHistoryTable.refresh();
+            }
+        }
+    }
+
+    private void setupUndoRedoButtons() {
+        Image arrowLeftImage = new Image(getClass().getResourceAsStream("/images/arrowLeft.png"));
+        Image arrowRightImage = new Image(getClass().getResourceAsStream("/images/arrowRight.png"));
+
+        ImageView arrowLeftImageView = new ImageView(arrowLeftImage);
+        arrowLeftImageView.setFitWidth(20);
+        arrowLeftImageView.setFitHeight(20);
+
+        ImageView arrowRightImageView = new ImageView(arrowRightImage);
+        arrowRightImageView.setFitWidth(20);
+        arrowRightImageView.setFitHeight(20);
+
+        undoButton = new Button();
+        redoButton = new Button();
+
+        undoButton.setGraphic(arrowLeftImageView);
+        redoButton.setGraphic(arrowRightImageView);
+
+        undoButton.setOnAction(e -> controller.undoMove());
+        redoButton.setOnAction(e -> controller.redoMove());
+    }
+
+    public HBox getUndoRedoButtons() {
+        HBox buttonBox = new HBox(10, undoButton, redoButton);
+        buttonBox.setSpacing(10);
+        return buttonBox;
+    }
+
     public Piece displayPromotionDialog(Board board, int row, int col) {
         Piece currPiece = board.getPieceAt(row, col);
         List<String> choices = Arrays.asList("Queen", "Rook", "Bishop", "Knight");
@@ -207,17 +258,21 @@ public class ChessView {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == newGameButton) {
             System.out.println("New Game");
-//            startNewGame(); // Call method to start a new game
-            System.exit(0);
+            controller.resetGame(); // Call method to start a new game
+//            System.exit(0);
         }
         else if(result.isPresent() && result.get() == saveGameButton) {
             System.out.println("Save Game");
-//            saveGame();
-            System.exit(0);
+            controller.saveGame();
+//            System.exit(0);
 
         }
         else {
             System.exit(0); // Exit the application if the user chooses "Exit"
         }
+    }
+
+    public void clearMoveHistory() {
+        moveHistoryTable.getItems().clear();
     }
 }

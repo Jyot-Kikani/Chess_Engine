@@ -10,13 +10,49 @@ public class Board {
         initializeBoard();
     }
 
-    private void initializeBoard() {
+    public void initializeBoard() {
 //        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-        String startFen = "2bqkbnr/P1ppp2p/5p2/6p1/4P3/8/1PPP1R2/RNBQKB2";
+        String startFen = "n2bkpnr/p1p1pp1p/8/2Q5/8/8/PPPPPPPP/RNB1KBNR";
         initializeBoardFromFEN(startFen);
     }
 
-    private void initializeBoardFromFEN(String fen) {
+    public String getFENfromBoard() {
+        StringBuilder fen = new StringBuilder();
+        for (int row = 0; row < 8; row++) {
+            int emptySquares = 0;
+            for (int col = 0; col < 8; col++) {
+                Piece piece = board[row][col];
+                if (piece == null) {
+                    emptySquares++;
+                } else {
+                    if (emptySquares > 0) {
+                        fen.append(emptySquares);
+                        emptySquares = 0;
+                    }
+                    char pieceChar = getPieceChar(piece);
+                    fen.append(piece.isWhite() ? Character.toUpperCase(pieceChar) : Character.toLowerCase(pieceChar));
+                }
+            }
+            if (emptySquares > 0) {
+                fen.append(emptySquares);
+            }
+            if (row < 7) {
+                fen.append("/");
+            }
+        }
+        return fen.toString();
+    }
+
+    private void clearBoard() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                board[row][col] = null;
+            }
+        }
+    }
+
+    public void initializeBoardFromFEN(String fen) {
+        clearBoard();
         String[] sections = fen.split(" ");
         String piecePlacement = sections[0];
         String[] rows = piecePlacement.split("/");

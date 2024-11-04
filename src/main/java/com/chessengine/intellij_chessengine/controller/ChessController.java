@@ -26,6 +26,7 @@ public class ChessController {
     public ChessController(ChessModel model, ChessView view) {
         this.model = model;
         this.view = view;
+        this.view.setController(this);
         initializeListeners();
         updateView();
     }
@@ -69,7 +70,9 @@ public class ChessController {
                 Piece movedPiece = model.getBoard().getPieceAt(row, col);
 
                 // Determine turn number and add to move history
+                System.out.println("Current: " + model.getCurrentTurn());
                 long turnNumber = (model.getCurrentTurn() + 1) / 2;
+                System.out.println("turnNumber: " + turnNumber);
                 String moveNotation = model.getMoveNotation(movedPiece, startX, startY, row, col, capturedPiece);
                 if (model.getCurrentTurn() % 2 == 1) {
                     view.addMoveToHistory(turnNumber, moveNotation, ""); // White's move
@@ -82,12 +85,14 @@ public class ChessController {
                 validMoves.clear();
                 view.animatePieceMovement(model.getBoard(), startX, startY, row, col, movedPiece);
 
+                model.updateStack(moveNotation);
+
                 if(moveNotation.charAt(moveNotation.length()-1) == '#') {
                     String msg = " wins";
                     if (movedPiece.isWhite())
-                        msg = "White " + msg;
+                        msg = "White" + msg;
                     else
-                        msg = "Black " + msg;
+                        msg = "Black" + msg;
                     view.showGameEndDialog(msg);
                 }
             }
@@ -116,5 +121,32 @@ public class ChessController {
 
     private void updateView() {
         view.updateBoard(model.getBoard(), selectedSquare, validMoves);
+    }
+
+    public void undoMove() {
+        if(model.undoMove()) {
+            view.removeLastMoveFromHistory();
+            updateView();
+        }
+    }
+
+    public void redoMove() {
+        if(model.redoMove()) {
+            if(!model.isWhiteToMove())
+                view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, model.getLastMove().getKey(), "");
+            else
+                view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, "", model.getLastMove().getKey());
+            updateView();
+        }
+    }
+
+    public void resetGame() {
+        model.resetGame();
+        view.clearMoveHistory();
+        updateView();
+    }
+
+    public void saveGame() {
+
     }
 }

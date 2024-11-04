@@ -1,20 +1,21 @@
 package com.chessengine.intellij_chessengine.model;
 
 import com.chessengine.intellij_chessengine.model.pieces.Pawn;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class ChessModel {
     private final Board board;
     private boolean whiteToMove;
-    private final List<String> moveHistory;
     private long turnNumber;
-
+    private Stack<Pair<String, String>> undoStack = new Stack<>();
+    private Stack<Pair<String, String>> redoStack = new Stack<>();
 
     public ChessModel() {
         board = new Board();
-        moveHistory = new ArrayList<>();
         turnNumber = 0;
         whiteToMove = true;
     }
@@ -25,6 +26,15 @@ public class ChessModel {
 
     public Board getBoard() {
         return board;
+    }
+
+    public void updateStack(String move) {
+        undoStack.push(new Pair<>(move, board.getFENfromBoard()));
+        redoStack.clear();
+    }
+
+    public Pair<String, String> getLastMove() {
+        return undoStack.peek();
     }
 
     public boolean movePiece(int startX, int startY, int endX, int endY) {
@@ -98,5 +108,40 @@ public class ChessModel {
     // Get the current player's turn as a string
     public long getCurrentTurn() {
         return turnNumber;
+    }
+
+    public boolean undoMove() {
+        if(undoStack.isEmpty())
+            return false;
+
+        Pair<String, String> move = undoStack.pop();
+        redoStack.push(move);
+        if(undoStack.isEmpty())
+            board.initializeBoard();
+        else
+            board.initializeBoardFromFEN(undoStack.peek().getValue());
+        whiteToMove = !whiteToMove;
+        turnNumber--;
+        return true;
+    }
+
+    public boolean redoMove() {
+        if(redoStack.isEmpty())
+            return false;
+
+        Pair<String, String> move = redoStack.pop();
+        undoStack.push(move);
+        board.initializeBoardFromFEN(move.getValue());
+        whiteToMove = !whiteToMove;
+        turnNumber++;
+        return true;
+    }
+
+    public void resetGame() {
+        board.initializeBoard();
+        undoStack.clear();
+        redoStack.clear();
+        whiteToMove = true;
+        turnNumber = 0;
     }
 }
