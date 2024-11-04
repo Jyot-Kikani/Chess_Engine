@@ -131,7 +131,6 @@ public class ChessController {
                         updateView();
                         return;
                     }
-//                    selectSound.play();
                     piece.calculateValidMoves(row, col, model.getBoard(), false);
                     validMoves = piece.getValidMoves();
                     updateView();

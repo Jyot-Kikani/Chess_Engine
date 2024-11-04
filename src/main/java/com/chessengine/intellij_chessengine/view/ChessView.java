@@ -4,12 +4,11 @@ import com.chessengine.intellij_chessengine.controller.ChessController;
 import com.chessengine.intellij_chessengine.model.Board;
 import com.chessengine.intellij_chessengine.model.Piece;
 import com.chessengine.intellij_chessengine.model.PieceType;
-
-
 import com.chessengine.intellij_chessengine.model.pieces.Bishop;
 import com.chessengine.intellij_chessengine.model.pieces.Knight;
 import com.chessengine.intellij_chessengine.model.pieces.Queen;
 import com.chessengine.intellij_chessengine.model.pieces.Rook;
+
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.control.*;
@@ -21,13 +20,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.VBox;
 
 public class ChessView {
     private final GridPane boardGrid = new GridPane();
@@ -259,13 +257,11 @@ public class ChessView {
         if (result.isPresent() && result.get() == newGameButton) {
             System.out.println("New Game");
             controller.resetGame(); // Call method to start a new game
-//            System.exit(0);
         }
         else if(result.isPresent() && result.get() == saveGameButton) {
             System.out.println("Save Game");
             controller.saveGame();
-//            System.exit(0);
-
+            System.exit(0);
         }
         else {
             System.exit(0); // Exit the application if the user chooses "Exit"

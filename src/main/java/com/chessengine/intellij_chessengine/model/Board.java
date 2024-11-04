@@ -1,5 +1,6 @@
 package com.chessengine.intellij_chessengine.model;
 import com.chessengine.intellij_chessengine.model.pieces.*;
+
 import javafx.util.Pair;
 
 public class Board {
@@ -11,8 +12,7 @@ public class Board {
     }
 
     public void initializeBoard() {
-        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-//        String startFen = "n2bkpnr/p1p1pp1p/8/2Q5/8/8/PPPPPPPP/RNB1KBNR"; // For testing
+        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // Starting position FEN
         initializeBoardFromFEN(startFen);
     }
 
@@ -26,21 +26,21 @@ public class Board {
                     emptySquares++;
                 } else {
                     if (emptySquares > 0) {
-                        fen.append(emptySquares);
+                        fen.append(emptySquares); // Append the count of empty squares
                         emptySquares = 0;
                     }
                     char pieceChar = getPieceChar(piece);
-                    fen.append(piece.isWhite() ? Character.toUpperCase(pieceChar) : Character.toLowerCase(pieceChar));
+                    fen.append(piece.isWhite() ? Character.toUpperCase(pieceChar) : Character.toLowerCase(pieceChar)); // Append the piece character
                 }
             }
             if (emptySquares > 0) {
-                fen.append(emptySquares);
+                fen.append(emptySquares); // Append any remaining empty squares at the end of the row
             }
             if (row < 7) {
-                fen.append("/");
+                fen.append("/"); // Add row separator
             }
         }
-        return fen.toString();
+        return fen.toString(); // Return the FEN string
     }
 
     private void clearBoard() {
@@ -137,21 +137,6 @@ public class Board {
             }
         }
         return false;  // King is safe
-    }
-
-    public void displayBoard() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                Piece piece = board[row][col];
-                if (piece == null) {
-                    System.out.print(". ");
-                } else {
-                    char pieceChar = getPieceChar(piece);
-                    System.out.print(pieceChar + " ");
-                }
-            }
-            System.out.println();
-        }
     }
 
     public char getPieceChar(Piece piece) {

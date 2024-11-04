@@ -1,10 +1,7 @@
 package com.chessengine.intellij_chessengine.model;
 
 import com.chessengine.intellij_chessengine.model.pieces.Pawn;
-import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 public class ChessModel {
@@ -115,15 +112,21 @@ public class ChessModel {
     }
 
     public boolean undoMove() {
-        if(undoStack.isEmpty())
+        // Check if the undo stack is empty
+        if (undoStack.isEmpty())
             return false;
 
+        // Pop the last move from the undo stack and push it to the redo stack
         Move move = undoStack.pop();
         redoStack.push(move);
-        if(undoStack.isEmpty())
+
+        // Initialize the board to the previous state
+        if (undoStack.isEmpty())
             board.initializeBoard();
         else
             board.initializeBoardFromFEN(undoStack.peek().getFenString());
+
+        // Switch turns and decrement the turn number
         whiteToMove = !whiteToMove;
         turnNumber--;
         return true;
@@ -136,26 +139,26 @@ public class ChessModel {
         Move move = redoStack.pop();
         undoStack.push(move);
         board.initializeBoardFromFEN(move.getFenString());
-        whiteToMove = !whiteToMove;
-        turnNumber++;
+        whiteToMove = !whiteToMove; // Switch turns
+        turnNumber++; // Increment turn number
         return true;
     }
 
     public void resetGame() {
-        board.initializeBoard();
-        undoStack.clear();
-        redoStack.clear();
-        whiteToMove = true;
-        turnNumber = 0;
+        board.initializeBoard(); // Initialize the board to the starting position
+        undoStack.clear(); // Clear the undo stack
+        redoStack.clear(); // Clear the redo stack
+        whiteToMove = true; // Set white to move first
+        turnNumber = 0; // Reset turn number
     }
 
     public void loadGameHistory(String filename) {
         Stack<Move> gameHistory = GameLoader.loadGameHistory(filename);
         if (gameHistory != null) {
-            undoStack = gameHistory;
-            board.initializeBoardFromFEN(undoStack.peek().getFenString());
-            whiteToMove = undoStack.size() % 2 == 0;
-            turnNumber = undoStack.size();
+            undoStack = gameHistory; // Load the game history into the undo stack
+            board.initializeBoardFromFEN(undoStack.peek().getFenString()); // Initialize the board from the last move's FEN
+            whiteToMove = undoStack.size() % 2 == 0; // Determine whose turn it is
+            turnNumber = undoStack.size(); // Set the turn number based on the size of the undo stack
         }
     }
 }

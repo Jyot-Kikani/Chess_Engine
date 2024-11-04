@@ -47,8 +47,6 @@ public class Queen extends Piece {
                     // Temporarily move the Queen to the new position
                     board.setPieceAt(newX, newY, this);
                     board.setPieceAt(x, y, null);
-//                    System.out.println();
-//                    board.displayBoard();
                     if (checkKingSafety) {
                         // Debugging output for black Queen
                         validMoves.add(new Pair<>(newX, newY));

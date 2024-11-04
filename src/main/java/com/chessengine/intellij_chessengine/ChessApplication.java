@@ -3,6 +3,7 @@ package com.chessengine.intellij_chessengine;
 import com.chessengine.intellij_chessengine.model.ChessModel;
 import com.chessengine.intellij_chessengine.view.ChessView;
 import com.chessengine.intellij_chessengine.controller.ChessController;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
