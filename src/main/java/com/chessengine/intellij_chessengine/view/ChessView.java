@@ -5,8 +5,13 @@ import com.chessengine.intellij_chessengine.model.Piece;
 import com.chessengine.intellij_chessengine.model.PieceType;
 
 
+import com.chessengine.intellij_chessengine.model.pieces.Bishop;
+import com.chessengine.intellij_chessengine.model.pieces.Knight;
+import com.chessengine.intellij_chessengine.model.pieces.Queen;
+import com.chessengine.intellij_chessengine.model.pieces.Rook;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -14,12 +19,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 import javafx.util.Pair;
+
+import java.util.Arrays;
 import java.util.List;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
+import java.util.Optional;
+
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
 
 public class ChessView {
     private final GridPane boardGrid = new GridPane();
@@ -69,7 +75,12 @@ public class ChessView {
 
         // Highlight valid move squares
         for (Pair<Integer, Integer> move : validMoves) {
-            highlightSquare(move.getKey(), move.getValue(), Color.ORANGE);
+            Piece targetPiece = board.getPieceAt(move.getKey(), move.getValue());
+            if (targetPiece != null) {
+                highlightSquare(move.getKey(), move.getValue(), Color.RED);
+            } else {
+                highlightSquare(move.getKey(), move.getValue(), Color.ORANGE);
+            }
         }
     }
 
@@ -99,7 +110,10 @@ public class ChessView {
     private void highlightSquare(int row, int col, Color color) {
         Rectangle highlight = new Rectangle(TILE_SIZE, TILE_SIZE);
         highlight.setFill(color);
-        highlight.setOpacity(0.75);  // semi-transparent for overlay
+        if(color == Color.RED)
+            highlight.setOpacity(0.60);
+        else
+            highlight.setOpacity(0.75);  // semi-transparent for overlay
         boardGrid.add(highlight, col, row);
     }
 
@@ -148,6 +162,62 @@ public class ChessView {
         } else {
             MoveRecord move = new MoveRecord(turn, whiteMove, blackMove);
             moveHistoryTable.getItems().add(move);
+        }
+    }
+
+    public Piece displayPromotionDialog(Board board, int row, int col) {
+        Piece currPiece = board.getPieceAt(row, col);
+        List<String> choices = Arrays.asList("Queen", "Rook", "Bishop", "Knight");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Queen", choices);
+        dialog.setTitle("Pawn Promotion");
+        dialog.setHeaderText("Choose a piece for promotion:");
+        dialog.setContentText("Select piece:");
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            switch (result.get()) {
+                case "Rook":
+                    return new Rook(currPiece.isWhite());
+                case "Bishop":
+                    return new Bishop(currPiece.isWhite());
+                case "Knight":
+                    return new Knight(currPiece.isWhite());
+                default:
+                    return new Queen(currPiece.isWhite());
+            }
+        }
+        return new Queen(currPiece.isWhite()); // Default to Queen if no selection is made
+    }
+
+    public void showGameEndDialog(String resultMessage) {
+        // Create an alert dialog for the end of the game
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Game Over");
+        alert.setHeaderText(resultMessage);
+        alert.setContentText("Would you like to start a new game?");
+
+        // Add options for the user
+        ButtonType saveGameButton = new ButtonType("Save Game");
+        ButtonType newGameButton = new ButtonType("New Game");
+        ButtonType exitButton = new ButtonType("Exit");
+
+        alert.getButtonTypes().setAll(saveGameButton, newGameButton, exitButton);
+
+        // Show the dialog and capture the result
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == newGameButton) {
+            System.out.println("New Game");
+//            startNewGame(); // Call method to start a new game
+            System.exit(0);
+        }
+        else if(result.isPresent() && result.get() == saveGameButton) {
+            System.out.println("Save Game");
+//            saveGame();
+            System.exit(0);
+
+        }
+        else {
+            System.exit(0); // Exit the application if the user chooses "Exit"
         }
     }
 }

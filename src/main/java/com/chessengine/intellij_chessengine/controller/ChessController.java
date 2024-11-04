@@ -58,6 +58,12 @@ public class ChessController {
             int startY = selectedSquare.getValue();
             Piece capturedPiece = model.getBoard().getPieceAt(row, col);
             if (model.movePiece(startX, startY, row, col)) {
+                // Adding pawn promotion condition
+                if (model.getBoard().getPieceAt(row, col).getType() == PieceType.PAWN && (row == 0 || row == 7)) {
+                    Piece newPieace = view.displayPromotionDialog(model.getBoard(), row, col);
+                    model.getBoard().setPieceAt(row, col, newPieace);
+                }
+
                 moveSound.play();
 
                 Piece movedPiece = model.getBoard().getPieceAt(row, col);
@@ -75,6 +81,15 @@ public class ChessController {
                 selectedSquare = null;
                 validMoves.clear();
                 view.animatePieceMovement(model.getBoard(), startX, startY, row, col, movedPiece);
+
+                if(moveNotation.charAt(moveNotation.length()-1) == '#') {
+                    String msg = " wins";
+                    if (movedPiece.isWhite())
+                        msg = "White " + msg;
+                    else
+                        msg = "Black " + msg;
+                    view.showGameEndDialog(msg);
+                }
             }
 
             else {

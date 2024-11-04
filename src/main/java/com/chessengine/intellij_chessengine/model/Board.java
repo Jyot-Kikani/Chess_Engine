@@ -11,8 +11,8 @@ public class Board {
     }
 
     private void initializeBoard() {
-        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-//        String startFen = "Q3k3/8/R7/7p/8/8/6P1/4KBN1";
+//        String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+        String startFen = "2bqkbnr/P1ppp2p/5p2/6p1/4P3/8/1PPP1R2/RNBQKB2";
         initializeBoardFromFEN(startFen);
     }
 
@@ -37,18 +37,6 @@ public class Board {
                         case 'k' -> board[r][col] = new King(isWhite);
                     }
                     col++;
-                }
-            }
-        }
-    }
-
-
-    public void recalculateValidMoves() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                Piece piece = board[row][col];
-                if (piece != null) {
-                    piece.calculateValidMoves(row, col, this, false);
                 }
             }
         }
