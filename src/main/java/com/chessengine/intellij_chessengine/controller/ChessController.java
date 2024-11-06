@@ -22,7 +22,7 @@ public class ChessController {
     private List<Pair<Integer, Integer>> validMoves = new ArrayList<>();
 
     // Load sounds as .mp3 files
-    private final AudioClip selectSound = new AudioClip(getClass().getResource("/sounds/select3.mp3").toExternalForm());
+    private final AudioClip selectSound = new AudioClip(getClass().getResource("/sounds/select4.mp3").toExternalForm());
     private final AudioClip moveSound = new AudioClip(getClass().getResource("/sounds/move3.mp3").toExternalForm());
     private final AudioClip undoSound = new AudioClip(getClass().getResource("/sounds/undo.mp3").toExternalForm());
     private final AudioClip captureSound = new AudioClip(getClass().getResource("/sounds/capture.mp3").toExternalForm());
@@ -74,6 +74,7 @@ public class ChessController {
             // Select the piece and calculate valid moves
             Piece piece = model.getBoard().getPieceAt(row, col);
             if (piece != null) {
+                selectSound.play();
                 selectedSquare = new Pair<>(row, col);
                 if(piece.isWhite() != model.isWhiteToMove()) {
                     selectedSquare = null;
@@ -137,6 +138,7 @@ public class ChessController {
                 // If the clicked square is another piece, select it instead
                 Piece piece = model.getBoard().getPieceAt(row, col);
                 if (piece != null) {
+                    selectSound.play();
                     selectedSquare = new Pair<>(row, col);
                     // If the piece is not the same color as the current player, deselect it
                     if(piece.isWhite() != model.isWhiteToMove()) {
