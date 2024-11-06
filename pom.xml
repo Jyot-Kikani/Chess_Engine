@@ -65,12 +65,24 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.chessengine.intellij_chessengine/com.chessengine.intellij_chessengine.HelloApplication
+                                com.chessengine.intellij_chessengine.ChessApplication
                             </mainClass>
                             <launcher>app</launcher>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.chessengine.intellij_chessengine.ChessApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

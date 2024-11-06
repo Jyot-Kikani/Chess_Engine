@@ -39,7 +39,6 @@ public class ChessView {
         initializeBoardGrid();
         moveHistoryTable = setupMoveHistoryPanel();
         setupUndoRedoButtons();
-
     }
 
     public void setController(ChessController controller) {
@@ -240,7 +239,7 @@ public class ChessView {
 
     public void showGameEndDialog(String resultMessage) {
         // Create an alert dialog for the end of the game
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert alert = new Alert(Alert.AlertType.NONE);
         alert.setTitle("Game Over");
         alert.setHeaderText(resultMessage);
         alert.setContentText("Would you like to start a new game?");

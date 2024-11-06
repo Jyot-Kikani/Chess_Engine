@@ -23,7 +23,11 @@ public class ChessController {
 
     // Load sounds as .mp3 files
     private final AudioClip selectSound = new AudioClip(getClass().getResource("/sounds/select3.mp3").toExternalForm());
-    private final AudioClip moveSound = new AudioClip(getClass().getResource("/sounds/move2.mp3").toExternalForm());
+    private final AudioClip moveSound = new AudioClip(getClass().getResource("/sounds/move3.mp3").toExternalForm());
+    private final AudioClip undoSound = new AudioClip(getClass().getResource("/sounds/undo.mp3").toExternalForm());
+    private final AudioClip captureSound = new AudioClip(getClass().getResource("/sounds/capture.mp3").toExternalForm());
+    private final AudioClip checkSound = new AudioClip(getClass().getResource("/sounds/check.mp3").toExternalForm());
+    private final AudioClip endSound = new AudioClip(getClass().getResource("/sounds/end.mp3").toExternalForm());
 
     public ChessController(ChessModel model, ChessView view) {
         this.model = model;
@@ -63,6 +67,9 @@ public class ChessController {
         int col = (int) (event.getX() / view.TILE_SIZE);
         int row = (int) (event.getY() / view.TILE_SIZE);
 
+        if(!model.getBoard().isInBounds(row, col))
+            return;
+
         if (selectedSquare == null) {
             // Select the piece and calculate valid moves
             Piece piece = model.getBoard().getPieceAt(row, col);
@@ -89,8 +96,6 @@ public class ChessController {
                     model.getBoard().setPieceAt(row, col, newPieace);
                 }
 
-                moveSound.play();
-
                 Piece movedPiece = model.getBoard().getPieceAt(row, col);
 
                 // Determine turn number and add to move history
@@ -101,6 +106,15 @@ public class ChessController {
                 } else {
                     view.addMoveToHistory(turnNumber, "", moveNotation); // Black's move
                 }
+
+                if(moveNotation.contains("#"))
+                    endSound.play();
+                else if(moveNotation.contains("+"))
+                    checkSound.play();
+                else if(capturedPiece != null)
+                    captureSound.play();
+                else
+                    moveSound.play();
 
                 // Clear selection after attempting move
                 selectedSquare = null;
@@ -146,6 +160,7 @@ public class ChessController {
 
     public void undoMove() {
         if(model.undoMove()) {
+            undoSound.play();
             view.removeLastMoveFromHistory();
             updateView();
         }
@@ -153,6 +168,13 @@ public class ChessController {
 
     public void redoMove() {
         if(model.redoMove()) {
+            String s = model.getLastMove().getMoveNotation();
+            if(s.contains("+"))
+                checkSound.play();
+            else if(s.contains("x"))
+                captureSound.play();
+            else
+                moveSound.play();
             if(!model.isWhiteToMove())
                 view.addMoveToHistory((model.getCurrentTurn() + 1) / 2, model.getLastMove().getMoveNotation(), "");
             else

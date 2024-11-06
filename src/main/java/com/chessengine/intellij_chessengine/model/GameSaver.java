@@ -17,6 +17,7 @@ public class GameSaver {
         // Save the file in the 'saved_games' directory
         File file = new File(directory, fileName);
 
+        // Initialise the file output stream and object output stream objects such that they automatically get closed after the try block
         try (FileOutputStream fileOut = new FileOutputStream(file);
              ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(gameHistory);
